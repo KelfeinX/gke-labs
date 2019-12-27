@@ -28,9 +28,9 @@ In this section you will start your [Google Cloud Shell](https://cloud.google.co
 
 2. Click the Google Cloud Shell icon in the top-right and wait for your shell to open:
 
-  ![](docs/img/cloud-shell.png)
+  ![](docs/img/todo.png)
 
-  ![](docs/img/cloud-shell-prompt.png)
+  ![](docs/img/todo.png)
 
 3. When the shell is open, set your default account, project and compute zone. For these labs, set the default zone to 'us-east1-d':
 
@@ -178,13 +178,13 @@ Additionally the `jenkins-ui` services is exposed using a ClusterIP so that it i
     printf $(kubectl get secret cd-jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode);echo
     ```
 
-2. To get to the Jenkins user interface, click on the Web Preview button![](../docs/img/web-preview.png) in cloud shell, then click “Preview on port 8080”:
+2. To get to the Jenkins user interface, click on the Web Preview button![](../docs/img/todo.png) in cloud shell, then click “Preview on port 8080”:
 
-![](docs/img/preview-8080.png)
+![](docs/img/todo.png)
 
 You should now be able to log in with username `admin` and your auto generated password.
 
-![](docs/img/jenkins-login.png)
+![](docs/img/todo.png)
 
 ## Preparing your Repo
 
