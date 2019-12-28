@@ -22,6 +22,7 @@ master:
     - credentials-binding:latest
     - git:latest
     - github:latest
+    - blueocean:latest
     - google-oauth-plugin:latest
     - google-source-plugin:latest
     - google-kubernetes-engine:latest
@@ -146,11 +147,11 @@ master:
   # When setting runAsUser to a different value than 0 also set fsGroup to the same value:
   # runAsUser: <defaults to 0>
   # fsGroup: <will be omitted in deployment if runAsUser is 0>
-  - port: 80
+  servicePort: 8080
   targetPort: 8080
   # For minikube, set this to NodePort, elsewhere use LoadBalancer
   # Use ClusterIP if your setup includes ingress controller
-  serviceType: LoadBalancer
+  serviceType: ClusterIP
   # Jenkins master service annotations
   serviceAnnotations: {}
   # Jenkins master custom labels
