@@ -19,32 +19,31 @@ In order to deploy the application with [Kubernetes](http://kubernetes.io/) you 
 
 ## Prerequisites
 1. A Google Cloud Platform Account, with valid billing information. $398 CAD is granted to free trial users.
-2. [Enable the Compute Engine, Container Engine, and Container Builder APIs](https://console.cloud.google.com/flows/enableapi?apiid=compute_component,container,cloudbuild.googleapis.com)
+2. Create a new Google Cloud Platform project: [https://console.developers.google.com/project](https://console.developers.google.com/project)
+3. [Enable the Compute Engine, Container Engine, and Container Builder APIs](https://console.cloud.google.com/flows/enableapi?apiid=compute_component,container,cloudbuild.googleapis.com)
 
-## Setting up your Google Cloud
+## Setting up your Google Cloud Shell
 In this section you will start your [Google Cloud Shell](https://cloud.google.com/cloud-shell/docs/) and clone the lab code repository to it.
 
-1. Create a new Google Cloud Platform project: [https://console.developers.google.com/project](https://console.developers.google.com/project)
+1. Click the Google Cloud Shell icon in the top-right and wait for your shell to open:
 
-2. Click the Google Cloud Shell icon in the top-right and wait for your shell to open:
+  ![](docs/img/cloudshell.png)
 
-  ![](docs/img/todo.png)
-
-  ![](docs/img/todo.png)
-
-3. When the shell is open, set your default account, project and compute zone. For these labs, set the default zone to 'us-east1-d':
+2. When the shell is open, set your default account, project and compute zone. For these labs, set the default zone to 'us-east1-d':
 
   ```shell
   $ gcloud init
   ```
+  
+  ![](docs/img/gcloudinit.png)
 
-  You may also need to set the correct name of your project. e.g.:
+  You may also need to configure your shell to use the correct project. e.g.:
   
   ```
   $ gcloud config set project gke-labs-26244
   ```
   
-4. Clone the lab repository in your cloud shell, then `cd` into that dir:
+3. Clone the lab repository in your cloud shell, then `cd` into that dir:
 
   ```shell
   $ git clone https://github.com/KelfeinX/gke-labs.git
@@ -73,7 +72,7 @@ Confirm that the cluster is running and `kubectl` is working by listing the clus
 ```shell
 $ gcloud container clusters list
 NAME        LOCATION    MASTER_VERSION  MASTER_IP      MACHINE_TYPE   NODE_VERSION    NUM_NODES  STATUS
-jenkins-cd  us-east1-d  1.13.11-gke.14  34.73.126.148  n1-standard-2  1.13.11-gke.14  2          RUNNING
+jenkins-ci  us-east1-d  1.13.11-gke.14  34.73.126.148  n1-standard-2  1.13.11-gke.14  2          RUNNING
 $ kubectl cluster-info
 Kubernetes master is running at https://34.73.126.148
 GLBCDefaultBackend is running at https://34.73.126.148/api/v1/namespaces/kube-system/services/default-http-backend:ht
@@ -138,9 +137,20 @@ You will use a custom [values file](https://github.com/kubernetes/helm/blob/mast
 2. Once that command completes ensure the Jenkins pod goes to the `Running` state and the container is in the `READY` state:
 
     ```shell
-    $ kubectl get pods
-    NAME                          READY     STATUS    RESTARTS   AGE
-    jenkins-7c786475dd-vbhg4      1/1       Running   0          1m
+    $ kubectl get all
+    NAME                          READY   STATUS    RESTARTS   AGE
+    pod/jenkins-85ddb8fd5-b65dn   1/1     Running   0          108s
+
+    NAME                    TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)     AGE
+    service/jenkins         ClusterIP   10.35.249.227   <none>        8080/TCP    108s
+    service/jenkins-agent   ClusterIP   10.35.246.248   <none>        50000/TCP   108s
+    service/kubernetes      ClusterIP   10.35.240.1     <none>        443/TCP     5d16h
+
+    NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
+    deployment.apps/jenkins   1/1     1            1           108s
+
+    NAME                                DESIRED   CURRENT   READY   AGE
+    replicaset.apps/jenkins-85ddb8fd5   1         1         1       108s
     ```
     
 3. Configure the Jenkins service account to be able to deploy to the cluster. 
@@ -156,16 +166,6 @@ You will use a custom [values file](https://github.com/kubernetes/helm/blob/mast
     export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/component=jenkins-master" -l "app.kubernetes.io/instance=jenkins" -o jsonpath="{.items[0].metadata.name}") && kubectl port-forward $POD_NAME 8080:8080 >> /dev/null &
     ```
 
-5. Now, check that the Jenkins Service was created properly:
-
-    ```shell
-    $ kubectl get svc
-    NAME               CLUSTER-IP     EXTERNAL-IP   PORT(S)     AGE
-    jenkins            10.35.249.67   <none>        8080/TCP    1h
-    jenkins-agent      10.35.248.1    <none>        50000/TCP   1h
-    kubernetes         10.35.240.1    <none>        443/TCP     4d19h
-    ```
-
 We are using the [Kubernetes Plugin](https://wiki.jenkins-ci.org/display/JENKINS/Kubernetes+Plugin) so that our builder nodes will be automatically launched as necessary when the Jenkins master requests them.
 Upon completion of their work they will automatically be turned down and their resources added back to the clusters resource pool.
 
@@ -174,19 +174,19 @@ Additionally the `jenkins-ui` services is exposed using a ClusterIP so that it i
 
 ## Connecting to Jenkins
 
-1. The Jenkins chart will automatically create an admin password for you. To retrieve it, run:
+1. The Jenkins helm chart will automatically create an admin password for you. To retrieve it, run:
 
     ```shell
-    printf $(kubectl get secret cd-jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode);echo
+    printf $(kubectl get secret jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode);echo
     ```
 
-2. To get to the Jenkins user interface, click on the Web Preview button![](../docs/img/todo.png) in cloud shell, then click “Preview on port 8080”:
+2. To get to the Jenkins user interface, click on the Web Preview button in the cloud shell, then click “Preview on port 8080”:
 
-![](docs/img/todo.png)
+![](docs/img/webpreview.png)
 
 You should now be able to log in with username `admin` and your auto generated password.
 
-![](docs/img/todo.png)
+![](docs/img/jenkinslogin.png)
 
 ## Preparing your Repo
 
