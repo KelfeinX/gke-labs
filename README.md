@@ -39,9 +39,11 @@ In this section you will start your [Google Cloud Shell](https://cloud.google.co
   ```
 
   You may also need to set the correct name of your project. e.g.:
+  
   ```
   $ gcloud config set project gke-labs-26244
-
+  ```
+  
 4. Clone the lab repository in your cloud shell, then `cd` into that dir:
 
   ```shell
@@ -138,7 +140,7 @@ You will use a custom [values file](https://github.com/kubernetes/helm/blob/mast
     ```shell
     $ kubectl get pods
     NAME                          READY     STATUS    RESTARTS   AGE
-    jenkins-7c786475dd-vbhg4   1/1       Running   0          1m
+    jenkins-7c786475dd-vbhg4      1/1       Running   0          1m
     ```
     
 3. Configure the Jenkins service account to be able to deploy to the cluster. 
