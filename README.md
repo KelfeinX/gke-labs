@@ -200,7 +200,7 @@ Alternatively, navigate to: https://ssh.cloud.google.com/devshell/proxy?port=808
 
 ![](docs/img/jenkinslogin.png)
 
-## Preparing your GitHub Repo Webhhok
+## Preparing your GitHub Repo Webhook
 
 If you haven't already done so, fork this GitHub repository and configure it such that GitHub automatically notifies Jenkins about new commits to the repository via a webhook.
 
