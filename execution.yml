@@ -1,5 +1,19 @@
-provisioning: cloud
-
-modules:
-  cloud:
-    test: https://a.blazemeter.com/app/#/accounts/117582/workspaces/228149/projects/291617/tests/6414141
+---
+execution:
+- concurrency: 50
+  hold-for: 3m
+  ramp-up: 2m
+  
+  scenario: Choose Flight
+scenarios:
+  Choose Flight:
+    requests:
+    - label: blazedemo
+      method: GET
+      url: http://blazedemo.com/
+    - label: reserve
+      method: POST
+      url: http://blazedemo.com/reserve.php
+      body:
+        fromPort: Paris
+        toPort: Buenos Aires
