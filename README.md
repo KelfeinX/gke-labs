@@ -1,8 +1,9 @@
 # Lab: Build a Continuous Deployment Pipeline with Jenkins and Google Kubernetes Engine
 
-This was originally forked from this [repo](https://github.com/GoogleCloudPlatform/continuous-deployment-on-kubernetes), but has since been updated and corrected with current information and best practices. Also, we'll be deploying from dockerhub, but you can change this to your own private registry.
+This was originally forked from this [repo](https://github.com/GoogleCloudPlatform/continuous-deployment-on-kubernetes), but has since been updated and corrected with current information and best practices. Also, we'll be building in Jenkins using a repo from GitHub, but you can use a private container registry, if you'd like.
 
 ## Introduction
+
 This guide will take you through the steps necessary to continuously deliver your software to end users by leveraging [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) and [Jenkins](https://jenkins.io) to orchestrate the software delivery pipeline.
 If you are not familiar with basic Kubernetes concepts, have a look at [Kubernetes 101](http://kubernetes.io/docs/user-guide/walkthrough/).
 
@@ -18,11 +19,13 @@ In order to deploy the application with [Kubernetes](http://kubernetes.io/) you 
   - [Secrets](http://kubernetes.io/docs/user-guide/secrets/) - secure storage of non public configuration information, SSL certs specifically in our case
 
 ## Prerequisites
+
 1. A Google Cloud Platform Account, with valid billing information. $398 CAD is granted to free trial users.
 2. Create a new Google Cloud Platform project: [https://console.developers.google.com/project](https://console.developers.google.com/project)
 3. [Enable the Compute Engine, Container Engine, and Container Builder APIs](https://console.cloud.google.com/flows/enableapi?apiid=compute_component,container,cloudbuild.googleapis.com)
 
 ## Setting up your Google Cloud Shell
+
 In this section you will start your [Google Cloud Shell](https://cloud.google.com/cloud-shell/docs/) and clone the lab code repository to it.
 
 1. Click the Google Cloud Shell icon in the top-right and wait for your shell to open:
@@ -54,6 +57,7 @@ In this section you will start your [Google Cloud Shell](https://cloud.google.co
   ```
 
 ## Creating a Kubernetes Cluster
+
 You'll use Google Container Engine to create and manage your Kubernetes cluster. Provision the cluster with `gcloud`:
 
 ```shell
@@ -61,6 +65,7 @@ You'll use Google Container Engine to create and manage your Kubernetes cluster.
 ```
 
 Once that operation completes download the credentials for your cluster using the [gcloud CLI](https://cloud.google.com/sdk/):
+
 ```shell
 $ gcloud container clusters get-credentials jenkins-ci --zone us-east1-d --project=$(gcloud config get-value project)
 Fetching cluster endpoint and auth data.
@@ -126,6 +131,7 @@ In this lab, you will use Helm to install Jenkins from the Charts repository. He
     ```
 
 ## Installing and Configuring Jenkins
+
 You will use a custom [values file](https://github.com/kubernetes/helm/blob/master/docs/chart_template_guide/values_files.md) to add the GCP specific plugin necessary to use service account credentials to reach your Cloud Source Repository.
 
 1. Use the Helm CLI to deploy the chart with your configuration set.
@@ -166,6 +172,12 @@ You will use a custom [values file](https://github.com/kubernetes/helm/blob/mast
     export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/component=jenkins-master" -l "app.kubernetes.io/instance=jenkins" -o jsonpath="{.items[0].metadata.name}") && kubectl port-forward $POD_NAME 8080:8080 >> /dev/null &
     ```
 
+Another way of doing this:
+
+    ```shell
+    gcloud container clusters get-credentials jenkins-ci --zone us-east1-d --project=$(gcloud config get-value project) && kubectl port-forward $(kubectl get pod --selector="app.kubernetes.io/component=jenkins-master,app.kubernetes.io/instance=jenkins" --output jsonpath='{.items[0].metadata.name}') 8080:8080 >> /dev/null &
+    ```
+
 We are using the [Kubernetes Plugin](https://wiki.jenkins-ci.org/display/JENKINS/Kubernetes+Plugin) so that our builder nodes will be automatically launched as necessary when the Jenkins master requests them.
 Upon completion of their work they will automatically be turned down and their resources added back to the clusters resource pool.
 
@@ -184,28 +196,87 @@ Additionally the `jenkins-ui` services is exposed using a ClusterIP so that it i
 
 ![](docs/img/webpreview.png)
 
-You should now be able to log in with username `admin` and your auto generated password.
+Alternatively, navigate to: https://ssh.cloud.google.com/devshell/proxy?port=8080 Your Jenkins frontend should now have a generated URL that can be access externally; such as https://8080-dot-10187644-dot-devshell.appspot.com/ You should now be able to log in with username `admin` and your auto generated password.
 
 ![](docs/img/jenkinslogin.png)
 
-## Preparing your Repo
+## Preparing your GitHub Repo Webhhok
 
-TODO: Fork a repo
+If you haven't already done so, fork this GitHub repository and configure it such that GitHub automatically notifies Jenkins about new commits to the repository via a webhook.
 
-## Setting up a Pipeline
+  - Log in to GitHub and create a new repository. Note the HTTPS URL to the repository.
 
-TODO: create a personal access token in GitHub, for Jenkins.
+![](docs/img/repourl.png)
 
-## Extra credit: deploy a breaking change, then roll back
-Make a breaking change to the `gceme` source, push it, and deploy it through the pipeline to production. Then pretend latency spiked after the deployment and you want to roll back. Do it! Faster!
+  - Click the "Settings" tab at the top of the repository page.
+  - Select the "Webhooks" sub-menu item. Click "Add webhook".
+  - In the "Payload URL" field, enter the URL https://HOSTNAME/github-webhook/, replacing the HOSTNAME placeholder with the hostname of your Jenkins deployment.
+  
+![](docs/img/webhookcreate.png)
+
+  - Ensure that "Just the push event" radio button is checked and save the webhook.
+
+## Setting up a Pipeline in Jenkins
+
+At this point, you are ready to start setting up your Jenkins pipeline. Follow the steps below to create a new project.
+
+  - Log in to Jenkins (if you're not already logged in).
+  - Click "New item". Enter a name for the new project and set the project type to "Pipeline". Click "OK" to proceed.
+
+![](docs/img/pipelinecreate.png)
+
+  - Select the "General" tab on the project configuration page and check the "GitHub project" checkbox. Enter the complete URL to your GitHub project.
+  - Select the "Build triggers" tab on the project configuration page and check the "GitHub hook trigger for GITScm polling" checkbox. 
+
+![](docs/img/pipelineconfig.png)
+
+  - Select the "Pipeline" tab on the project configuration page and set the "Definition" field to "Pipeline script from SCM". Set the "SCM" field to "Git" and enter the GitHub repository URL. Set the branch specifier to "*/master". This configuration tells Jenkins to look for a pipeline script named Jenkinsfile in the code repository itself.
+  
+![](docs/img/pipelineconfig2.png)
+
+  - Save the changes.
+
+At this point, your pipeline project has been created, but doesn't actually have any credentials or data to operate on. The next steps will add this information.
+
+## Adding credentials to Jenkins
+
+This step will walk you through adding credentials to the Jenkins credentials store, so that the pipeline is able to communicate with the Kubernetes cluster and the Docker Hub registry. Follow the steps below:
+
+  - Navigate to the Jenkins dashboard and select the "Credentials" menu item.
+  - Select the "System" sub-menu" and the "Global credentials" domain.
+  - Click the "Add credentials" link. Select the "Username with password" credential type and enter your Docker Hub username and password in the corresponding fields. Set the "ID" field to dockerhub. Click "OK" to save the changes.
+
+![](docs/img/dockercreds.png)
+
+  - In the Jenkins UI, Click “Credentials” on the left
+  - Click either of the “(global)” links (they both route to the same URL)
+  - Click “Add Credentials” on the left
+  - From the “Kind” dropdown, select “Google Service Account from metadata”
+  - Click “OK”
+
+![](docs/img/gkecreds.png)
+
+With the credentials added, you're now ready to commit some code and test the pipeline.
+
+At this point, you are ready to have Jenkins build and deploy your application. Since you already configured a GitHub webhook trigger, committing your code to GitHub will automatically trigger the pipeline.
+
+## Rolling Update and Rollback
+
+TODO: We're going to deploy a new version of our app on Kubernetes by scaling down the old version, and then scaling up the updated one. We'll also revert with a rollback to the previous app version.
 
 Things to consider:
 
 * What is the Docker image you want to deploy for roll back?
 * How can you interact directly with the Kubernetes to trigger the deployment?
-* Is SRE really what you want to do with your life?
 
 ## Clean up
+
 Clean up is really easy, but also super important: if you don't follow these instructions, you will continue to be billed for the Google Container Engine cluster you created.
 
 To clean up, navigate to the [Google Developers Console Project List](https://console.developers.google.com/project), choose the project you created for this lab, and delete it. That's it.
+
+If you just want to delete the pods but not the entire project, you can do that with helm:
+
+    ```shell
+    helm delete jenkins --purge
+    ```
