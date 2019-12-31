@@ -91,7 +91,7 @@ Metrics-server is running at https://34.73.126.148/api/v1/namespaces/kube-system
 
 In this lab, you will use Helm to install Jenkins from the Charts repository. Helm is a package manager that makes it easy to configure and deploy Kubernetes applications.  Once you have Jenkins installed, you'll be able to set up your CI/CD pipleline.
 
-Now with Helm v3, this section is now only half as long and far less complicated! (no more Tiller!)
+Now with Helm v3, this section is now only half as long and far less complicated! (no more Tiller!):
 
 1. Download and run the new Helm installer script
 
@@ -126,7 +126,7 @@ Now with Helm v3, this section is now only half as long and far less complicated
 
 You will use a custom [values file](https://github.com/kubernetes/helm/blob/master/docs/chart_template_guide/values_files.md) to add the GCP specific plugin necessary to use service account credentials to reach your Cloud Source Repository.
 
-As of Helm v3, you no longer need to specify the --name flag
+As of Helm v3, you no longer need to specify the --name flag when installing your package:
 
 1. Use the Helm CLI to deploy the chart with your configuration set.
 
@@ -269,8 +269,10 @@ Clean up is really easy, but also super important: if you don't follow these ins
 
 To clean up, navigate to the [Google Developers Console Project List](https://console.developers.google.com/project), choose the project you created for this lab, and delete it. That's it.
 
-If you just want to delete the pods but not the entire project, you can do that with helm:
+If you just want to delete the pods but not the entire project, you can do that with helm.
+
+The --purge flag is no longer needed as of Helm v3:
 
     ```shell
-    helm delete jenkins --purge
+    helm delete jenkins
     ```
