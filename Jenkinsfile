@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-        PROJECT_ID = 'gke-labs-262903'
-        CLUSTER_NAME = 'jenkins-cd'
+        PROJECT_ID = 'gke-labs-26244'
+        CLUSTER_NAME = 'jenkins-ci'
         LOCATION = 'us-east1-d'
         CREDENTIALS_ID = 'gke'
     }
