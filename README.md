@@ -93,7 +93,7 @@ In this lab, you will use Helm to install Jenkins from the Charts repository. He
 
 Now with Helm v3, this section is now only half as long and far less complicated! (no more Tiller!)
 
-1. Download and run the new helm install script
+1. Download and run the new Helm installer script
 
     ```shell
     curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
@@ -107,8 +107,16 @@ Now with Helm v3, this section is now only half as long and far less complicated
     helm version
     version.BuildInfo{Version:"v3.0.2", GitCommit:"19e47ee3283ae98139d98460de796c1be1e3975f", GitTreeState:"clean", GoVersion:"go1.13.5"}
     ```
-    
-3. Add yourself as a cluster administrator in the cluster's RBAC so that you can give Jenkins permissions in the cluster:
+
+3. As good practice, you should next add and update the official 'stable' repo:
+
+    ```shell
+    helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+    helm repo update
+    ```
+
+
+4. Add yourself as a cluster administrator in the cluster's RBAC so that you can give Jenkins permissions in the cluster:
     
     ```shell
     kubectl create clusterrolebinding cluster-admin-binding --clusterrole=cluster-admin --user=$(gcloud config get-value account)
@@ -118,10 +126,12 @@ Now with Helm v3, this section is now only half as long and far less complicated
 
 You will use a custom [values file](https://github.com/kubernetes/helm/blob/master/docs/chart_template_guide/values_files.md) to add the GCP specific plugin necessary to use service account credentials to reach your Cloud Source Repository.
 
+As of Helm v3, you no longer need to specify the --name flag
+
 1. Use the Helm CLI to deploy the chart with your configuration set.
 
     ```shell
-    helm install --name jenkins stable/jenkins -f charts/jenkins.yaml --wait
+    helm install jenkins stable/jenkins -f charts/jenkins.yaml --wait
     ```
 
 2. Once that command completes ensure the Jenkins pod goes to the `Running` state and the container is in the `READY` state:
