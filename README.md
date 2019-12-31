@@ -91,43 +91,27 @@ Metrics-server is running at https://34.73.126.148/api/v1/namespaces/kube-system
 
 In this lab, you will use Helm to install Jenkins from the Charts repository. Helm is a package manager that makes it easy to configure and deploy Kubernetes applications.  Once you have Jenkins installed, you'll be able to set up your CI/CD pipleline.
 
-1. Download and install the helm binary
+Now with Helm v3, this section is now only half as long and far less complicated! (no more Tiller!)
+
+1. Download and run the new helm install script
 
     ```shell
-    wget https://storage.googleapis.com/kubernetes-helm/helm-v2.14.1-linux-amd64.tar.gz
+    curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
+    chmod 700 get_helm.sh
+    ./get_helm.sh
     ```
 
-2. Unzip the file to your local system:
+2. Afterwards, ensure Helm is properly installed by running the following command:
 
     ```shell
-    tar zxfv helm-v2.14.1-linux-amd64.tar.gz && cp linux-amd64/helm .
+    helm version
+    version.BuildInfo{Version:"v3.0.2", GitCommit:"19e47ee3283ae98139d98460de796c1be1e3975f", GitTreeState:"clean", GoVersion:"go1.13.5"}
     ```
-
+    
 3. Add yourself as a cluster administrator in the cluster's RBAC so that you can give Jenkins permissions in the cluster:
     
     ```shell
     kubectl create clusterrolebinding cluster-admin-binding --clusterrole=cluster-admin --user=$(gcloud config get-value account)
-    ```
-
-4. Grant Tiller, the server side of Helm, the cluster-admin role in your cluster:
-
-    ```shell
-    kubectl create serviceaccount tiller --namespace kube-system && kubectl create clusterrolebinding tiller-admin-binding --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
-    ```
-
-5. Initialize Helm. This ensures that the server side of Helm (Tiller) is properly installed in your cluster.
-
-    ```shell
-    helm init --service-account=tiller
-    helm repo update
-    ```
-
-6. It may take a few minutes to be ready. Afterwards, ensure Helm is properly installed by running the following command:
-
-    ```shell
-    helm version
-    Client: &version.Version{SemVer:"v2.14.1", GitCommit:"5270352a09c7e8b6e8c9593002a73535276507c0", GitTreeState:"clean"}
-    Server: &version.Version{SemVer:"v2.14.1", GitCommit:"5270352a09c7e8b6e8c9593002a73535276507c0", GitTreeState:"clean"}
     ```
 
 ## Installing and Configuring Jenkins
