@@ -1,0 +1,19 @@
+allowVolumeExpansion: true
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+  creationTimestamp: "2020-01-01T01:25:19Z"
+  labels:
+    addonmanager.kubernetes.io/mode: EnsureExists
+    kubernetes.io/cluster-service: "true"
+  name: standard
+  resourceVersion: "345"
+  selfLink: /apis/storage.k8s.io/v1/storageclasses/standard
+  uid: 92b1635d-2c35-11ea-8c88-42010a8e0044
+parameters:
+  type: pd-standard
+provisioner: kubernetes.io/gce-pd
+reclaimPolicy: Delete
+volumeBindingMode: Immediate

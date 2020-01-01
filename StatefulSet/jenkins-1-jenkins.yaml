@@ -1,0 +1,138 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1beta2","kind":"StatefulSet","metadata":{"annotations":{},"labels":{"app.kubernetes.io/component":"je
+nkins-master","app.kubernetes.io/name":"jenkins-1"},"name":"jenkins-1-jenkins","namespace":"default","ownerReferences":[{"apiVer
+sion":"app.k8s.io/v1beta1","blockOwnerDeletion":true,"kind":"Application","name":"jenkins-1","uid":"9f5f96a0-2c35-11ea-8c88-4201
+0a8e0044"}]},"spec":{"replicas":1,"selector":{"matchLabels":{"app.kubernetes.io/component":"jenkins-master","app.kubernetes.io/n
+ame":"jenkins-1"}},"serviceName":"jenkins-1-jenkins-ui","template":{"metadata":{"labels":{"app.kubernetes.io/component":"jenkins
+-master","app.kubernetes.io/name":"jenkins-1"}},"spec":{"containers":[{"env":[{"name":"JENKINS_OPTS","value":""},{"name":"JAVA_O
+PTS","value":"-Xmx1800m"},{"name":"INSTALL_MONITORING","value":"true"}],"image":"gcr.io/cloud-marketplace/google/jenkins@sha256:
+0f980a144fbd27209e44e49282fbaec5430b03bee4c6fa5481f74ecdf18451ed","name":"jenkins-master","ports":[{"containerPort":8080},{"cont
+ainerPort":50000}],"readinessProbe":{"failureThreshold":5,"httpGet":{"path":"/login","port":8080},"periodSeconds":10,"successThr
+eshold":2,"timeoutSeconds":5},"resources":{"limits":{"memory":"2.0Gi"},"requests":{"memory":"2.0Gi"}},"volumeMounts":[{"mountPat
+h":"/var/jenkins_home","name":"jenkins-1-jenkins-pvc"}]}],"initContainers":[{"command":["sh","-c","chown 1000:1000 /var/jenkins_
+home"],"image":"gcr.io/cloud-marketplace/google/jenkins@sha256:0f980a144fbd27209e44e49282fbaec5430b03bee4c6fa5481f74ecdf18451ed"
+,"name":"volume-permissions-fix","securityContext":{"runAsUser":0},"volumeMounts":[{"mountPath":"/var/jenkins_home","name":"jenk
+ins-1-jenkins-pvc"}]}]}},"volumeClaimTemplates":[{"metadata":{"labels":{"app.kubernetes.io/component":"jenkins-master","app.kube
+rnetes.io/name":"jenkins-1"},"name":"jenkins-1-jenkins-pvc"},"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"s
+torage":"8Gi"}},"storageClassName":"standard"}}]}}
+  creationTimestamp: "2020-01-01T01:26:12Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/component: jenkins-master
+    app.kubernetes.io/name: jenkins-1
+  name: jenkins-1-jenkins
+  namespace: default
+  ownerReferences:
+  - apiVersion: app.k8s.io/v1beta1
+    blockOwnerDeletion: true
+    kind: Application
+    name: jenkins-1
+    uid: 9f5f96a0-2c35-11ea-8c88-42010a8e0044
+  resourceVersion: "1390"
+  selfLink: /apis/apps/v1/namespaces/default/statefulsets/jenkins-1-jenkins
+  uid: b26ee441-2c35-11ea-8c88-42010a8e0044
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: jenkins-master
+      app.kubernetes.io/name: jenkins-1
+  serviceName: jenkins-1-jenkins-ui
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/component: jenkins-master
+        app.kubernetes.io/name: jenkins-1
+    spec:
+      containers:
+      - env:
+        - name: JENKINS_OPTS
+        - name: JAVA_OPTS
+          value: -Xmx1800m
+        - name: INSTALL_MONITORING
+          value: "true"
+        image: gcr.io/cloud-marketplace/google/jenkins@sha256:0f980a144fbd27209e44e49282fbaec5430b03bee4c6fa5481f74ecdf18451ed
+        imagePullPolicy: IfNotPresent
+        name: jenkins-master
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        - containerPort: 50000
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /login
+            port: 8080
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 2
+          timeoutSeconds: 5
+        resources:
+          limits:
+            memory: 2Gi
+          requests:
+            memory: 2Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/jenkins_home
+          name: jenkins-1-jenkins-pvc
+      dnsPolicy: ClusterFirst
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - chown 1000:1000 /var/jenkins_home
+        image: gcr.io/cloud-marketplace/google/jenkins@sha256:0f980a144fbd27209e44e49282fbaec5430b03bee4c6fa5481f74ecdf18451ed
+        imagePullPolicy: IfNotPresent
+        name: volume-permissions-fix
+        resources: {}
+        securityContext:
+          runAsUser: 0
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/jenkins_home
+          name: jenkins-1-jenkins-pvc
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+  volumeClaimTemplates:
+  - metadata:
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/component: jenkins-master
+        app.kubernetes.io/name: jenkins-1
+      name: jenkins-1-jenkins-pvc
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 8Gi
+      storageClassName: standard
+      volumeMode: Filesystem
+    status:
+      phase: Pending
+status:
+  collisionCount: 0
+  currentReplicas: 1
+  currentRevision: jenkins-1-jenkins-7f4dcf7577
+  observedGeneration: 1
+  readyReplicas: 1
+  replicas: 1
+  updateRevision: jenkins-1-jenkins-7f4dcf7577
+  updatedReplicas: 1

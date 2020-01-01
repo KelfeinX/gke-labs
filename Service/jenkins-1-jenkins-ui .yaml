@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app.kubernetes.io/component":"jenki
+ns-master","app.kubernetes.io/name":"jenkins-1"},"name":"jenkins-1-jenkins-ui","namespace":"default","ownerReferences
+":[{"apiVersion":"app.k8s.io/v1beta1","blockOwnerDeletion":true,"kind":"Application","name":"jenkins-1","uid":"9f5f96
+a0-2c35-11ea-8c88-42010a8e0044"}]},"spec":{"ports":[{"name":"ui","port":8080,"protocol":"TCP","targetPort":8080}],"se
+lector":{"app.kubernetes.io/component":"jenkins-master","app.kubernetes.io/name":"jenkins-1"},"type":"NodePort"}}
+  creationTimestamp: "2020-01-01T01:26:12Z"
+  labels:
+    app.kubernetes.io/component: jenkins-master
+    app.kubernetes.io/name: jenkins-1
+  name: jenkins-1-jenkins-ui
+  namespace: default
+  ownerReferences:
+  - apiVersion: app.k8s.io/v1beta1
+    blockOwnerDeletion: true
+    kind: Application
+    name: jenkins-1
+    uid: 9f5f96a0-2c35-11ea-8c88-42010a8e0044
+  resourceVersion: "929"
+  selfLink: /api/v1/namespaces/default/services/jenkins-1-jenkins-ui
+  uid: b2748c3b-2c35-11ea-8c88-42010a8e0044
+spec:
+  clusterIP: 10.11.250.36
+  externalTrafficPolicy: Cluster
+  ports:
+  - name: ui
+    nodePort: 31320
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app.kubernetes.io/component: jenkins-master
+    app.kubernetes.io/name: jenkins-1
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}

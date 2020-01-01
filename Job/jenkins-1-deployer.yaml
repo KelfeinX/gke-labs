@@ -1,0 +1,68 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  creationTimestamp: "2020-01-01T01:25:41Z"
+  labels:
+    app.kubernetes.io/component: deployer.marketplace.cloud.google.com
+    app.kubernetes.io/name: jenkins-1
+  name: jenkins-1-deployer
+  namespace: default
+  ownerReferences:
+  - apiVersion: app.k8s.io/v1beta1
+    blockOwnerDeletion: true
+    kind: Application
+    name: jenkins-1
+    uid: 9f5f96a0-2c35-11ea-8c88-42010a8e0044
+  resourceVersion: "956"
+  selfLink: /apis/batch/v1/namespaces/default/jobs/jenkins-1-deployer
+  uid: 9fb08951-2c35-11ea-8c88-42010a8e0044
+spec:
+  backoffLimit: 0
+  completions: 1
+  parallelism: 1
+  selector:
+    matchLabels:
+      controller-uid: 9fb08951-2c35-11ea-8c88-42010a8e0044
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+      creationTimestamp: null
+      labels:
+        controller-uid: 9fb08951-2c35-11ea-8c88-42010a8e0044
+        job-name: jenkins-1-deployer
+    spec:
+      containers:
+      - envFrom:
+        - configMapRef:
+            name: jenkins-1-deployer-config
+        image: gcr.io/cloud-marketplace/google/jenkins/deployer@sha256:c4adeb728f6b47d619b41c4789b22d9c4dc3e10e37a4d4e92b785cfd4491cc5d
+        imagePullPolicy: IfNotPresent
+        name: deployer
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data/values
+          name: config-volume
+      dnsPolicy: ClusterFirst
+      restartPolicy: Never
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: jenkins-1-deployer-sa
+      serviceAccountName: jenkins-1-deployer-sa
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: jenkins-1-deployer-config
+        name: config-volume
+status:
+  completionTime: "2020-01-01T01:26:14Z"
+  conditions:
+  - lastProbeTime: "2020-01-01T01:26:14Z"
+    lastTransitionTime: "2020-01-01T01:26:14Z"
+    status: "True"
+    type: Complete
+  startTime: "2020-01-01T01:25:41Z"
+  succeeded: 1

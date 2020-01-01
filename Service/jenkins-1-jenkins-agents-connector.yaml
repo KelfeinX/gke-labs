@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app.kubernetes.io/component":"jenki
+ns-master","app.kubernetes.io/name":"jenkins-1"},"name":"jenkins-1-jenkins-agents-connector","namespace":"default","o
+wnerReferences":[{"apiVersion":"app.k8s.io/v1beta1","blockOwnerDeletion":true,"kind":"Application","name":"jenkins-1"
+,"uid":"9f5f96a0-2c35-11ea-8c88-42010a8e0044"}]},"spec":{"ports":[{"name":"agents-connector","port":50000,"protocol":
+"TCP","targetPort":50000}],"selector":{"app.kubernetes.io/component":"jenkins-master","app.kubernetes.io/name":"jenki
+ns-1"}}}
+  creationTimestamp: "2020-01-01T01:26:12Z"
+  labels:
+    app.kubernetes.io/component: jenkins-master
+    app.kubernetes.io/name: jenkins-1
+  name: jenkins-1-jenkins-agents-connector
+  namespace: default
+  ownerReferences:
+  - apiVersion: app.k8s.io/v1beta1
+    blockOwnerDeletion: true
+    kind: Application
+    name: jenkins-1
+    uid: 9f5f96a0-2c35-11ea-8c88-42010a8e0044
+  resourceVersion: "933"
+  selfLink: /api/v1/namespaces/default/services/jenkins-1-jenkins-agents-connector
+  uid: b27d26a1-2c35-11ea-8c88-42010a8e0044
+spec:
+  clusterIP: 10.11.242.19
+  ports:
+  - name: agents-connector
+    port: 50000
+    protocol: TCP
+    targetPort: 50000
+  selector:
+    app.kubernetes.io/component: jenkins-master
+    app.kubernetes.io/name: jenkins-1
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
