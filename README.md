@@ -61,7 +61,7 @@ In this section you will start your [Google Cloud Shell](https://cloud.google.co
 You'll use Google Container Engine to create and manage your Kubernetes cluster. Provision the cluster with `gcloud`:
 
 ```shell
-    gcloud container clusters create jenkins-ci --machine-type n1-standard-2 --num-nodes 2 --zone us-east1-d --scopes "https://www.googleapis.com/auth/source.read_write,cloud-platform"
+  $ gcloud container clusters create jenkins-ci --machine-type n1-standard-2 --num-nodes 2 --zone us-east1-d --scopes "https://www.googleapis.com/auth/source.read_write,cloud-platform"
 ```
 
 Once that operation completes download the credentials for your cluster using the [gcloud CLI](https://cloud.google.com/sdk/):
@@ -78,6 +78,7 @@ Confirm that the cluster is running and `kubectl` is working by listing the clus
 $ gcloud container clusters list
 NAME        LOCATION    MASTER_VERSION  MASTER_IP      MACHINE_TYPE   NODE_VERSION    NUM_NODES  STATUS
 jenkins-ci  us-east1-d  1.13.11-gke.14  34.73.126.148  n1-standard-2  1.13.11-gke.14  2          RUNNING
+
 $ kubectl cluster-info
 Kubernetes master is running at https://34.73.126.148
 GLBCDefaultBackend is running at https://34.73.126.148/api/v1/namespaces/kube-system/services/default-http-backend:ht
@@ -130,8 +131,10 @@ As of Helm v3, you no longer need to specify the --name flag when installing you
 
 1. Use the Helm CLI to deploy the chart with your configuration set.
 
+We'll be using Ingress rules later on, and because GKE Ingress doesn't work with ServiceIP (default) we'll use the --set master.serviceType=NodePort flag:
+
     ```shell
-    helm install jenkins stable/jenkins -f charts/jenkins.yaml --wait
+    helm install jenkins stable/jenkins -f charts/jenkins.yaml --set master.serviceType=NodePort
     ```
 
 2. Once that command completes ensure the Jenkins pod goes to the `Running` state and the container is in the `READY` state:
@@ -160,7 +163,13 @@ As of Helm v3, you no longer need to specify the --name flag when installing you
     clusterrolebinding.rbac.authorization.k8s.io/jenkins-deploy created
     ```
 
-4. Run the following command to setup port forwarding to the Jenkins UI from the Cloud Shell
+4. Apply the Ingress rules to allow for External IP access to Jenkins
+
+    ```shell
+    kubectl apply -f Ingress/jenkins-ingress.yaml
+    ```
+
+5. (Optional) Run the following command to setup port forwarding to the Jenkins UI from the Cloud Shell
 
     ```shell
     export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/component=jenkins-master" -l "app.kubernetes.io/instance=jenkins" -o jsonpath="{.items[0].metadata.name}") && kubectl port-forward $POD_NAME 8080:8080 >> /dev/null &
